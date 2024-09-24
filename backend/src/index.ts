@@ -64,6 +64,40 @@ ads.splice(index, 1);
   });
 });
 
+app.put("/ads/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const values = req.body;
+
+    const adToUpdate = ads.find((ad) => ad.id === id);
+
+    if(adToUpdate){
+        Object.assign(adToUpdate, values, {id : adToUpdate.id});
+        res.json(adToUpdate);
+    } else {
+        res.status(404).send
+    }
+});
+
+app.patch("/ads/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const values = req.body;
+
+    let adToEdit : Ad | undefined;
+    for(const ad of ads){  
+        if(ad.id === id){
+            adToEdit = ad;
+            break;
+        }
+    }
+    
+    if(adToEdit){
+        Object.assign(adToEdit, values, {id : adToEdit.id});
+        res.json(adToEdit);
+    } else {
+        res.status(404).send
+    }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

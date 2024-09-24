@@ -20,4 +20,30 @@ Content-Type: application/json
 
 ###
 
+PATCH http://localhost:3000/ads/1
+Content-Type: application/json
+
+{
+    "title": "MegabikeToSell"
+}
+
+###
+
+PUT http://localhost:3000/ads/1
+Content-Type: application/json
+
+{
+    "title": "MegaBike to sell",
+    "description":
+      "My Megabike is blue, working fine. I'm selling it because I've got a new one",
+    "owner": "Megabike.seller@gmail.com",
+    "price": 200,
+    "picture":
+      "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
+    "location": "Bordeaux",
+    "createdAt": "2023-09-05T10:13:14.755Z"
+}
+
+###
+
 DELETE http://localhost:3000/ads/2
