@@ -1,4 +1,5 @@
 import express from "express";
+import { Ad } from "./types";
 
 const app = express();
 app.use(express.json());
@@ -36,9 +37,31 @@ app.get("/ads", (req, res) => {
 });
 
 app.post("/ads", (req, res) => {
-  req.body.id = ads.length + 1; 
+  const ad: Ad = req.body;
+  ad.id = ads[ads.length - 1].id + 1;
   ads.push(req.body);
+  console.log(req.body);
+
   res.send("Request received, check the backend terminal");
+});
+
+app.delete("/ads/:id", (req, res) => {
+  const id = Number(req.params.id);
+  //   const index =ads.findIndex((ad) => ad.id === id);
+  //   ads.splice(index, 1);
+  let index = -1;
+  for (let i = 0; i < ads.length; i++) {
+    if (ads[i].id === id) {
+      index = i;
+      break;
+    }
+  }
+
+ads.splice(index, 1);
+
+  res.json({
+    id: req.body.id,
+  });
 });
 
 app.listen(port, () => {
