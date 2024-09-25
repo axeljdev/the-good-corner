@@ -1,111 +1,73 @@
 import express from "express";
+import sqlite3 from "sqlite3";
 import { Ad } from "./types";
 
 const app = express();
 app.use(express.json());
 const port = 3000;
+const db = new sqlite3.Database("good_corner.sqlite");
 
-const ads: Ad[] = [
-  {
-    id: 1,
-    title: "Bike to sell",
-    description:
-      "My bike is blue, working fine. I'm selling it because I've got a new one",
-    owner: "bike.seller@gmail.com",
-    price: 100,
-    picture:
-      "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
-    location: "Paris",
-    createdAt: "2023-09-05T10:13:14.755Z",
-  },
-  {
-    id: 2,
-    title: "Car to sell",
-    description:
-      "My car is blue, working fine. I'm selling it because I've got a new one",
-    owner: "car.seller@gmail.com",
-    price: 10000,
-    picture:
-      "https://www.automobile-magazine.fr/asset/cms/34973/config/28294/apres-plusieurs-prototypes-la-bollore-bluecar-a-fini-par-devoiler-sa-version-definitive.jpg",
-    location: "Paris",
-    createdAt: "2023-10-05T10:14:15.922Z",
-  },
-];
+// const ads: Ad[] = [
+//   {
+//     id: 1,
+//     title: "Bike to sell",
+//     description:
+//       "My bike is blue, working fine. I'm selling it because I've got a new one",
+//     owner: "bike.seller@gmail.com",
+//     price: 100,
+//     picture:
+//       "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
+//     location: "Paris",
+//     createdAt: "2023-09-05T10:13:14.755Z",
+//   },
+//   {
+//     id: 2,
+//     title: "Car to sell",
+//     description:
+//       "My car is blue, working fine. I'm selling it because I've got a new one",
+//     owner: "car.seller@gmail.com",
+//     price: 10000,
+//     picture:
+//       "https://www.automobile-magazine.fr/asset/cms/34973/config/28294/apres-plusieurs-prototypes-la-bollore-bluecar-a-fini-par-devoiler-sa-version-definitive.jpg",
+//     location: "Paris",
+//     createdAt: "2023-10-05T10:14:15.922Z",
+//   },
+// ];
 
 app.get("/ads", (req, res) => {
-  res.send(ads);
+  db.all("SELECT * FROM ad", (err, rows) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("An error occurred");
+      return;
+    }
+    res.send(rows);
+  })
 });
 
-app.post("/ads", (req, res) => {
-  const ad: Ad = req.body;
-  ad.id = ads[ads.length - 1].id + 1;
-  ads.push(req.body);
-  console.log(req.body);
 
+app.post("/ads", (req, res) => {
+  const stmt = db.prepare("INSERT INTO ad (title, description, owner, price, picture, location, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  stmt.run(req.body.title, req.body.description, req.body.owner, req.body.price, req.body.picture, req.body.location, req.body.createdAt);  
   res.send("Request received, check the backend terminal");
 });
 
 app.delete("/ads/:id", (req, res) => {
-  const id = Number(req.params.id);
-  //   const index =ads.findIndex((ad) => ad.id === id);
-  //   ads.splice(index, 1);
-  let index = -1;
-  for (let i = 0; i < ads.length; i++) {
-    if (ads[i].id === id) {
-      index = i;
-      break;
-    }
-  }
-
-ads.splice(index, 1);
-
-  res.json({
-    id: req.body.id,
-  });
+  const stmt = db.prepare("DELETE FROM ad WHERE id = ?");
+stmt.run(req.params.id);
+res.send("Request received, check the backend terminal")
 });
 
 app.put("/ads/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const values = req.body;
-
-    let index = -1;
-    for (let i = 0; i < ads.length; i++) {
-      if (ads[i].id === id) {
-        index = i;
-        break;
-      }
-    }
-
-    if(index >= 0){
-        ads[index] = {
-          ...values,
-          id: ads[index].id,
-          createdAt: ads[index].createdAt,
-        }
-        res.json(ads[index]);
-    } else {
-        res.status(404).send
-    }
+  const stmt = db.prepare("UPDATE ad SET title = ?, description = ?, owner = ?, price = ?, picture = ?, location = ?, createdAt = ? WHERE id = ?");
+  stmt.run(req.body.title, req.body.description, req.body.owner, req.body.price, req.body.picture, req.body.location, req.body.createdAt, req.params.id);
+  res.send("Request received, check the backend terminal")
 });
 
 app.patch("/ads/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const values = req.body;
-
-    let adToEdit : Ad | undefined;
-    for(const ad of ads){  
-        if(ad.id === id){
-            adToEdit = ad;
-            break;
-        }
-    }
-    
-    if(adToEdit){
-        Object.assign(adToEdit, values, {id : adToEdit.id});
-        res.json(adToEdit);
-    } else {
-        res.status(404).send
-    }
+const stmt = db.prepare("UPDATE ad SET price = ? WHERE id = ?");
+stmt.run(req.body.price, req.params.id);
+res.send("Request received, check the backend terminal")
 });
 
 app.listen(port, () => {
