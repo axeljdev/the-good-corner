@@ -20,11 +20,12 @@ Content-Type: application/json
 
 ###
 
-PATCH http://localhost:3000/ads/31
+PATCH http://localhost:3000/ads/29
 Content-Type: application/json
 
 {
-    "price": 40
+    "price": 10000,
+    "location": "Bordeaux"
 }
 
 ###
