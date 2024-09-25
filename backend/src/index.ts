@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 const port = 3000;
 
-const ads = [
+const ads: Ad[] = [
   {
     id: 1,
     title: "Bike to sell",
@@ -68,11 +68,21 @@ app.put("/ads/:id", (req, res) => {
     const id = Number(req.params.id);
     const values = req.body;
 
-    const adToUpdate = ads.find((ad) => ad.id === id);
+    let index = -1;
+    for (let i = 0; i < ads.length; i++) {
+      if (ads[i].id === id) {
+        index = i;
+        break;
+      }
+    }
 
-    if(adToUpdate){
-        Object.assign(adToUpdate, values, {id : adToUpdate.id});
-        res.json(adToUpdate);
+    if(index >= 0){
+        ads[index] = {
+          ...values,
+          id: ads[index].id,
+          createdAt: ads[index].createdAt,
+        }
+        res.json(ads[index]);
     } else {
         res.status(404).send
     }
