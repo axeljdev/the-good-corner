@@ -1,86 +1,141 @@
+import "reflect-metadata";
 import express from "express";
 import sqlite3 from "sqlite3";
-import { Ad } from "./types";
+import { Category } from "./entities/category";
+import { datasource } from "./datasource";
+import { Ad } from "./entities/ad";
 
 const app = express();
 app.use(express.json());
 const port = 3000;
-const db = new sqlite3.Database("good_corner.sqlite");
 
-app.get("/ads", (req, res) => {
-  db.all("SELECT * FROM ad", (err, rows) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("An error occurred");
+app.get("/ads", async (req, res) => {
+  const ads = await Ad.find();
+  res.json(ads);
+});
+
+app.get("/ads/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const ads = await Ad.find({ where: { id } });
+  res.json(ads);
+});
+
+app.get("/categories", async (req, res) => {
+  const categories = await Category.find();
+  res.json(categories);
+});
+
+app.get("/categories/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  const categories = await Category.find({ where: { id } });
+  res.json(categories);
+});
+
+app.post("/categories", async (req, res) => {
+  const newCategory = new Category();
+  newCategory.name = req.body.name;
+  await newCategory.save();
+  res.json(newCategory);
+});
+
+app.post("/ads", async (req, res) => {
+  const newAd = new Ad();
+  newAd.title = req.body.title;
+  newAd.description = req.body.description;
+  newAd.owner = req.body.owner;
+  newAd.price = req.body.price;
+  newAd.picture = req.body.picture;
+  newAd.location = req.body.location;
+  newAd.createdAt = req.body.createdAt;
+  newAd.category_id = req.body.category_id;
+  await newAd.save();
+  res.json(newAd);
+});
+
+app.delete("/ads/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const ad = await Ad.findOneBy({ id });
+    if (ad !== null) {
+      await ad.remove();
+      res.json(ad);
     } else {
-      res.json(rows);
+      res.status(404).send();
     }
-  });
-});
-
-app.post("/ads", (req, res) => {
-  const stmt = db.prepare(
-    "INSERT INTO ad (title, description, owner, price, picture, location, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)"
-  );
-  stmt.run(
-    req.body.title,
-    req.body.description,
-    req.body.owner,
-    req.body.price,
-    req.body.picture,
-    req.body.location,
-    req.body.createdAt
-  ),
-    () => {
-      res.status(204).send();
-    };
-});
-
-app.delete("/ads/:id", (req, res) => {
-  const stmt = db.prepare("DELETE FROM ad WHERE id = ?");
-  stmt.run(req.params.id),
-    () => {
-      res.status(204).send();
-    };
-});
-
-app.put("/ads/:id", (req, res) => {
-  const stmt = db.prepare(
-    "UPDATE ad SET title = ?, description = ?, owner = ?, price = ?, picture = ?, location = ?, createdAt = ? WHERE id = ?"
-  );
-  stmt.run(
-    req.body.title,
-    req.body.description,
-    req.body.owner,
-    req.body.price,
-    req.body.picture,
-    req.body.location,
-    req.body.createdAt,
-    req.params.id
-  );
-  res.send("Request received, check the backend terminal");
-});
-
-app.patch("/ads/:id", (req, res) => {
-  let sqlQuery = `UPDATE ad SET `;
-  const params: (string | number)[] = [];
-
-  const bodyKeys = Object.keys(req.body);
-  
-  for (const key of bodyKeys) {
-    sqlQuery += `${key} = ?, `;
-    params.push(req.body[key]); // Ajout de la valeur correspondante
+  } catch (err) {
+    res.status(500).send();
   }
-  
-  sqlQuery = sqlQuery.slice(0, -2); // Supprime la dernière virgule
-  sqlQuery += ` WHERE id = ?`; // Ajoute la condition WHERE
-  params.push(req.params.id); // Ajoute l'ID à params
-
-  const stmt = db.prepare(sqlQuery); // Prépare la requête avec la chaîne complète
-  stmt.run(...params); // Utilise le tableau params
-  res.send("Request received, check the backend terminal");
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.delete("/categories/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const category = await Category.findOneBy({ id });
+    if (category !== null) {
+      await category.remove();
+      res.json(category);
+    } else {
+      res.status(404).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
 });
+
+app.put("/ads/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const ad = await Ad.findOneBy({ id });
+    if (ad !== null) {
+      Object.assign(ad, req.body);
+      await ad.save();
+      res.json(ad);
+    } else {
+      res.status(404).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+});
+
+app.put("/categories/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const category = await Category.findOneBy({ id });
+    if (category !== null) {
+      Object.assign(category, req.body);
+      await category.save();
+      res.json(category);
+    } else {
+      res.status(404).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+});
+
+app.patch("/ads/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const ad = await Ad.findOneBy({ id });
+    if (ad !== null) {
+      Object.assign(ad, req.body);
+      await ad.save();
+      res.json(ad);
+    } else {
+      res.status(404).send();
+    }
+  } catch (err) {
+    res.status(500).send();
+  }
+});
+
+async function initialize() {
+  await datasource.initialize();
+  console.log("Database initialized");
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+initialize();

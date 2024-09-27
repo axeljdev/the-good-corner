@@ -1,51 +1,71 @@
 GET http://localhost:3000/ads
 
 ###
+GET http://localhost:3000/ads/10
 
+###
+
+GET http://localhost:3000/categories/
+
+###
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+  "name": "Immobilier" 
+}
+
+###
 POST http://localhost:3000/ads
 Content-Type: application/json
 
 {
-  "id": 1,
-    "title": "Bike to sell",
-    "description":
-      "My bike is blue, working fine. I'm selling it because I've got a new one",
-    "owner": "bike.seller@gmail.com",
-    "price": 100,
-    "picture":
-      "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
-    "location": "Paris",
-    "createdAt": "2023-09-05T10:13:14.755Z"
+  "title": "Vélo électrique neuf",
+  "description": "Vélo électrique neuf, jamais utilisé",
+  "owner": "Jean",
+  "price": 1000,
+  "picture": "https://www.veloelectriquefrance.fr/wp-content/uploads/2020/06/velo-electrique-neuf.jpg",
+  "location": "Paris",
+  "createdAt": "2024-06-01",
+  "category_id": 1
 }
 
 ###
 
-PATCH http://localhost:3000/ads/29
+PATCH http://localhost:3000/ads/30
 Content-Type: application/json
 
 {
-    "price": 10000,
-    "location": "Bordeaux"
+    "price": 300
 }
 
 ###
 
-PUT http://localhost:3000/ads/1
+PUT http://localhost:3000/categories/6
 Content-Type: application/json
 
 {
-      "id": 1,
-    "title": "Velo a vendred",
-    "description":
-      "My bike is green, working fine. I'm selling it because I've got a new one",
-    "owner": "bike.seller@gmail.com",
-    "price": 1000,
-    "picture":
-      "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
-    "location": "Paris",
-    "createdAt": "2023-09-05T10:13:14.755Z"
+    "name": "Immo"
 }
 
 ###
 
-DELETE http://localhost:3000/ads/2
+PUT http://localhost:3000/ads/30
+Content-Type: application/json
+
+{
+    "title": "Location de vélo électrique",
+    "description": "Location de vélo électrique pour une journée à Paris, idéal pour découvrir la ville.",
+    "owner": "alexandre75",
+    "price": 3000,
+    "picture": "https://example.com/location_velo.jpg",
+    "location": "Paris",
+    "createdAt": "2024-09-22T00:00:00.000Z"
+}
+
+###
+
+DELETE http://localhost:3000/categories/
+###
+
+DELETE http://localhost:3000/ads/32
