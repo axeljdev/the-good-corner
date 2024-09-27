@@ -28,6 +28,6 @@ export class Ad extends BaseEntity {
     @Column()
     createdAt!: Date;
 
-    @ManyToOne(() => Category, (category) => category.ad)
+    @ManyToOne(() => Category, (category: Category) => category.ad)
     category_id!: Category;
 }
