@@ -5,29 +5,21 @@ GET http://localhost:3000/ads/10
 
 ###
 
-GET http://localhost:3000/categories/
-
-###
-POST http://localhost:3000/categories
-Content-Type: application/json
-
-{
-  "name": "Immobilier" 
-}
-
-###
 POST http://localhost:3000/ads
 Content-Type: application/json
 
 {
   "title": "Vélo électrique neuf",
   "description": "Vélo électrique neuf, jamais utilisé",
-  "owner": "Jean",
+  "owner": "Jean@gmail.com",
   "price": 1000,
   "picture": "https://www.veloelectriquefrance.fr/wp-content/uploads/2020/06/velo-electrique-neuf.jpg",
   "location": "Paris",
   "createdAt": "2024-06-01",
-  "category_id": 1
+  "category": { "id": 1 },
+  "tags": [
+    { "id": 2 }
+  ]
 }
 
 ###
@@ -41,31 +33,21 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3000/categories/6
-Content-Type: application/json
-
-{
-    "name": "Immo"
-}
-
-###
-
 PUT http://localhost:3000/ads/30
 Content-Type: application/json
 
 {
-    "title": "Location de vélo électrique",
-    "description": "Location de vélo électrique pour une journée à Paris, idéal pour découvrir la ville.",
-    "owner": "alexandre75",
-    "price": 3000,
-    "picture": "https://example.com/location_velo.jpg",
-    "location": "Paris",
-    "createdAt": "2024-09-22T00:00:00.000Z"
+  "title": "Vélo électrique neuf",
+  "description": "Vélo électrique neuf, jamais utilisé",
+  "owner": "Jean@gmail.com",
+  "price": 1000,
+  "picture": "https://www.veloelectriquefrance.fr/wp-content/uploads/2020/06/velo-electrique-neuf.jpg",
+  "location": "Paris",
+  "createdAt": "2024-06-01",
+  "category": { "id": 1 },
+  "tags": []
 }
 
-###
-
-DELETE http://localhost:3000/categories/
 ###
 
 DELETE http://localhost:3000/ads/32

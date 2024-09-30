@@ -1,0 +1,22 @@
+GET http://localhost:3000/categories/
+
+###
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+  "name": "Immobilier" 
+}
+
+###
+
+PUT http://localhost:3000/categories/6
+Content-Type: application/json
+
+{
+    "name": "Immo"
+}
+
+###
+
+DELETE http://localhost:3000/categories/

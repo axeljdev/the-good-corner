@@ -1,0 +1,22 @@
+GET http://localhost:3000/tags/
+
+###
+POST http://localhost:3000/tags
+Content-Type: application/json
+
+{
+  "name": "Vélo électrique" 
+}
+
+###
+
+PUT http://localhost:3000/tags/6
+Content-Type: application/json
+
+{
+    "name": "Immo"
+}
+
+###
+
+DELETE http://localhost:3000/tags/
