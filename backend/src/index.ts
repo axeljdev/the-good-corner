@@ -1,13 +1,14 @@
 import "reflect-metadata";
 import express from "express";
+import cors from "cors";
 import { datasource } from "./datasource";
 import { router as categoriesRouter } from "./controllers/categories";
 import { router as adsRouter } from "./controllers/ads";
 import { router as tagsRouter } from "./controllers/tags";
-
 const app = express();
 app.use(express.json());
 const port = 3000;
+app.use(cors());
 
 app.use("/categories", categoriesRouter);
 app.use("/ads", adsRouter);
