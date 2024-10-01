@@ -1,29 +1,46 @@
-
+import { Link } from "react-router-dom";
+import styles from "./Navbar.module.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { CategoriesProps } from "../types";
 
 function Navbar() {
-  const categories = [
-    { name: "Ameublement", link: "" },
-    { name: "Électroménager", link: "" },
-    { name: "Photographie", link: "" },
-    { name: "Informatique", link: "" },
-    { name: "Téléphonie", link: "" },
-    { name: "Vélos", link: "" },
-    { name: "Véhicules", link: "" },
-    { name: "Sport", link: "" },
-    { name: "Habillement", link: "" },
-    { name: "Bébé", link: "" },
-    { name: "Outillage", link: "" },
-    { name: "Services", link: "" },
-    { name: "Vacances", link: "" },
-  ];
+
+  const [categories, setCategories] = useState<CategoriesProps[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await axios.get<CategoriesProps[]>("http://localhost:3000/categories");
+        setCategories(result.data);
+      } catch (err) {
+        console.log("error",err);
+  }
+}; fetchData();
+  }, []);
+  // const categories = [
+  //   { name: "Ameublement", link: "" },
+  //   { name: "Électroménager", link: "" },
+  //   { name: "Photographie", link: "" },
+  //   { name: "Informatique", link: "" },
+  //   { name: "Téléphonie", link: "" },
+  //   { name: "Vélos", link: "" },
+  //   { name: "Véhicules", link: "" },
+  //   { name: "Sport", link: "" },
+  //   { name: "Habillement", link: "" },
+  //   { name: "Bébé", link: "" },
+  //   { name: "Outillage", link: "" },
+  //   { name: "Services", link: "" },
+  //   { name: "Vacances", link: "" },
+  // ];
   return (
-    <header className="header">
-      <div className="main-menu">
+    <header className={styles["header"]}>
+      <div className={styles["main-menu"]}>
         <h1>
-          <a href="/" className="button logo link-button">
+          <Link to="/" className="button logo link-button">
             <span className="mobile-short-label">TGC</span>
             <span className="desktop-long-label">THE GOOD CORNER</span>
-          </a>
+          </Link>
         </h1>
         <form className="text-field-with-button">
           <input className="text-field main-search-field" type="search" />
@@ -49,9 +66,9 @@ function Navbar() {
       <nav className="categories-navigation">
         {categories.map((category, index) => (
           <nav key={index}>
-            <a href={category.link} className="category-navigation-link">
+            <Link to={`/category/${category.name}`} className="category-navigation-link">
               {category.name}
-            </a>
+            </Link>
             {index < categories.length - 1 && " • "}
           </nav>
         ))}
