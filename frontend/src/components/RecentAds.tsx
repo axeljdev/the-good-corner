@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import Ads from "./Ads";
 import axios from "axios";
-import { AdsProps } from "../types";
+import { AdsType } from "../types";
 
 function RecentAds() {
   
   const [totalprice, setTotalPrice] = useState(0);
-  const [ads, setAds] = useState<AdsProps[]>([]);
+  const [ads, setAds] = useState<AdsType[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await axios.get<AdsProps[]>("http://localhost:3000/ads");
+        const result = await axios.get<AdsType[]>("http://localhost:3000/ads");
         setAds(result.data);
       } catch (err) {
         console.log("error",err);
@@ -31,8 +31,12 @@ function RecentAds() {
             <Ads
               id={ad.id}
               title={ad.title}
+              description={ad.description}
+              owner={ad.owner}
+              location={ad.location}
+              categoryId={ad.categoryId}
               price={ad.price}
-              image={ad.image}
+              picture={ad.picture}
               key={ad.id}
               onClick={() => setTotalPrice(totalprice + ad.price)}
             />

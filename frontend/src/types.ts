@@ -1,11 +1,21 @@
-export type AdsProps = {
+  export type AdsType = {
+    id : number;
     title: string;
+    description: string;
     price: number;
-    image: string;
-    id: number;
+    owner: string;
+    location: string;
+    categoryId: number;
+    picture: string;
+    tags: TagsType[];
   };
 
-  export type CategoriesProps = {
+  export type CategoriesType = {
+    id: number;
+    name: string;
+  };
+
+  export type TagsType = {
     id: number;
     name: string;
   };

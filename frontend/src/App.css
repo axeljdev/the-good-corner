@@ -94,11 +94,32 @@
     padding: 0 16px;
     margin: 120px auto 48px;
   }
+
+  .adEditor {
+    display: flex;
+    flex-direction: column;
+    gap:1rem;
+  }
    
   .recent-ads {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
+  }
+
+  .error-message {
+    display: none; /* Cacher par défaut */
+    color: red;
+    font-size: 0.7rem; /* Couleur du texte d'erreur */
+  }
+  
+  .error-message.visible {
+    display: block; /* Afficher lorsque visible */
+  }
+
+  img {
+    max-width: 28rem;
+    max-height: 15rem;
   }
   
   @media screen and (min-width: 720px) {

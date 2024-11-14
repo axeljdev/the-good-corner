@@ -1,12 +1,51 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { AdsType } from "../types";
+import Ads from "../components/Ads";
 
-function Category() {
-    const { category } = useParams();
+function Category({ onClick }: { onClick: () => void }) {
+  const [ads, setAds] = useState<AdsType[]>([]);
+  const { category } = useParams();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await axios.get<AdsType[]>(
+          `http://localhost:3000/ads?categoryId=${category}`
+        );
+        setAds(result.data);
+      } catch (err) {
+        console.log("error", err);
+      }
+    };
+    fetchData();
+  }, [category]);
+
   return (
-    <main>
-      <h1>{category}</h1>
+    <main className="main-content">
+      <h1> Les offres en </h1>
+      <section className="recent-ads">
+        {ads.map((ad) => (
+          <>
+            <Ads
+              id={ad.id}
+              title={ad.title}
+              description={ad.description}
+              owner={ad.owner}
+              location={ad.location}
+              categoryId={ad.categoryId}
+              price={ad.price}
+              picture={ad.picture}
+              tags={ad.tags}
+              key={ad.id}
+              onClick={onClick}
+            />
+          </>
+        ))}
+      </section>
     </main>
-  )
+  );
 }
 
-export default Category
+export default Category;

@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import styles from "./Ads.module.css";
 import Button from "./Button";
-import { AdsProps } from "../types";
+import { AdsType } from "../types";
 
-function Ads({ id, title, price, image, onClick }: AdsProps & { onClick: () => void }) {
+function Ads({ id, title, price, picture, onClick }: AdsType & { onClick: () => void }) {
+  
   return (
     <div className={styles["ad-card-container"]}>
       <Link to={`/ad/${id}`} className={styles["ad-card-link"]}>
-        <img className={styles["ad-card-image"]} src={image} />
+        <img className={styles["ad-card-image"]} src={picture} />
         <div className={styles["ad-card-text"]}>
           <div className={styles["ad-card-title"]}>{title}</div>
           <div className={styles["ad-card-price"]}>{price/100}€</div>

@@ -5,7 +5,7 @@ POST http://localhost:3000/categories
 Content-Type: application/json
 
 {
-  "name": "Immobilier" 
+  "name": "Électronique" 
 }
 
 ###
@@ -14,7 +14,7 @@ PUT http://localhost:3000/categories/6
 Content-Type: application/json
 
 {
-    "name": "Immo"
+    "name": "Immobilier"
 }
 
 ###

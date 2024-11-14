@@ -1,7 +1,10 @@
 GET http://localhost:3000/ads
 
 ###
-GET http://localhost:3000/ads/10
+GET http://localhost:3000/ads?categoryId=1
+
+###
+GET http://localhost:3000/ads/43
 
 ###
 

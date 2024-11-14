@@ -18,21 +18,7 @@ function Navbar() {
   }
 }; fetchData();
   }, []);
-  // const categories = [
-  //   { name: "Ameublement", link: "" },
-  //   { name: "Électroménager", link: "" },
-  //   { name: "Photographie", link: "" },
-  //   { name: "Informatique", link: "" },
-  //   { name: "Téléphonie", link: "" },
-  //   { name: "Vélos", link: "" },
-  //   { name: "Véhicules", link: "" },
-  //   { name: "Sport", link: "" },
-  //   { name: "Habillement", link: "" },
-  //   { name: "Bébé", link: "" },
-  //   { name: "Outillage", link: "" },
-  //   { name: "Services", link: "" },
-  //   { name: "Vacances", link: "" },
-  // ];
+
   return (
     <header className={styles["header"]}>
       <div className={styles["main-menu"]}>
@@ -58,15 +44,15 @@ function Navbar() {
             </svg>
           </button>
         </form>
-        <a href="/post-ad" className="button link-button">
+        <Link to="/ad/new" className="button link-button">
           <span className="mobile-short-label">Publier</span>
           <span className="desktop-long-label">Publier une annonce</span>
-        </a>
+        </Link>
       </div>
       <nav className="categories-navigation">
         {categories.map((category, index) => (
           <nav key={index}>
-            <Link to={`/category/${category.name}`} className="category-navigation-link">
+            <Link to={`/category/${category.id}`} className="category-navigation-link">
               {category.name}
             </Link>
             {index < categories.length - 1 && " • "}
