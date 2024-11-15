@@ -1,32 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Ads from "./Ads";
-import axios from "axios";
+import { useQuery } from "@apollo/client";
+import { GET_ADS } from "../api/ads";
 import { AdsType } from "../types";
 
 function RecentAds() {
-  
   const [totalprice, setTotalPrice] = useState(0);
-  const [ads, setAds] = useState<AdsType[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await axios.get<AdsType[]>("http://localhost:3000/ads");
-        setAds(result.data);
-      } catch (err) {
-        console.log("error",err);
-  }
-}; fetchData();
-  }, []);
-  
+  const { data, loading, error } = useQuery(GET_ADS);
 
   return (
     <main className="main-content">
       <h2>Annonces récentes</h2>
       <h3>Mon panier</h3>
-      <p>Total : {totalprice/100} €</p>
+      <p>Total : {totalprice / 100} €</p>
       <section className="recent-ads">
-        {ads.map((ad) => (
+        {loading && <p>Chargement...</p>}
+        {error && <p>Erreur dans le chargement : {error.message}</p>}
+        {data?.ads.map((ad: AdsType) => (
           <>
             <Ads
               id={ad.id}
@@ -37,6 +27,7 @@ function RecentAds() {
               categoryId={ad.categoryId}
               price={ad.price}
               picture={ad.picture}
+              tags={ad.tags}
               key={ad.id}
               onClick={() => setTotalPrice(totalprice + ad.price)}
             />

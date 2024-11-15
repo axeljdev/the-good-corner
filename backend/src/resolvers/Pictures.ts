@@ -1,5 +1,5 @@
 import { Mutation, Query, Resolver } from "type-graphql";
-import { Picture } from "../entities/picture";
+import { Picture } from "../entities/Picture";
 
 @Resolver()
 export class PicturesResolver {
@@ -9,7 +9,7 @@ export class PicturesResolver {
   }
 
   @Mutation(() => Picture)
-  async createPicture() {
+  async createPicture(): Promise<Picture> {
     return null;
   }
 }

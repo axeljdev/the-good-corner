@@ -9,16 +9,18 @@ import { TagsResolver } from "./resolvers/Tags";
 
 async function initialize() {
   await datasource.initialize();
-  console.log("Database initialized");
+  console.log("Datasource is connected");
+
   const schema = await buildSchema({
     resolvers: [CategoriesResolver, AdsResolver, TagsResolver],
   });
 
   const server = new ApolloServer({ schema });
-  const url = await startStandaloneServer(server, {
+
+  const { url } = await startStandaloneServer(server, {
     listen: { port: 5500 },
   });
-  console.log(`Server is running`);
+  console.log(`GraphQL server ready at ${url}`);
 }
 
 initialize();

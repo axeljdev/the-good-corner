@@ -1,13 +1,23 @@
 import {
   BaseEntity,
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
+  Entity,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from "typeorm";
-import { Ad } from "./ad";
-import { validate as validateEntity, IsNotEmpty } from "class-validator";
-import { Field, ID, ObjectType } from "type-graphql";
+import { Ad } from "./Ad";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
+import { Length } from "class-validator";
+
+// like { createdAt user }
+@ObjectType()
+class CategoryLike {
+  @Field()
+  createdAt!: Date;
+
+  @Field()
+  user!: string;
+}
 
 @Entity()
 @ObjectType()
@@ -17,18 +27,34 @@ export class Category extends BaseEntity {
   id!: number;
 
   @Column()
-  @IsNotEmpty({ message: "Le nom de la catégorie ne peut pas être vide" })
+  @Length(10, 100, { message: "Name must be between 10 and 100 chars" })
   @Field()
   name!: string;
 
+  @OneToMany(() => Ad, (ad) => ad.category)
   @Field(() => [Ad])
-  @OneToMany(() => Ad, (ad: Ad) => ad.category)
   ads!: Ad[];
 
-  async validate(): Promise<string[]> {
-    const errors = await validateEntity(this);
-    return errors.map((error) =>
-      Object.values(error.constraints || {}).join(", ")
-    );
+  @Field(() => [CategoryLike])
+  likes() {
+    console.log("Computed");
+    return [
+      {
+        createdAt: new Date(),
+        user: "Aurélien",
+      },
+    ];
   }
+}
+
+@InputType()
+export class CategoryCreateInput {
+  @Field()
+  name!: string;
+}
+
+@InputType()
+export class CategoryUpdateInput {
+  @Field({ nullable: true })
+  name!: string;
 }

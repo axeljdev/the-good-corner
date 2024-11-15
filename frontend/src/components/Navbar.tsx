@@ -1,23 +1,11 @@
 import { Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { CategoriesProps } from "../types";
+import { useQuery } from "@apollo/client";
+import { GET_CATEGORIES } from "../api/categories";
+import { CategoriesType } from "../types";
 
 function Navbar() {
-
-  const [categories, setCategories] = useState<CategoriesProps[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await axios.get<CategoriesProps[]>("http://localhost:3000/categories");
-        setCategories(result.data);
-      } catch (err) {
-        console.log("error",err);
-  }
-}; fetchData();
-  }, []);
+  const { data, loading, error } = useQuery(GET_CATEGORIES);
 
   return (
     <header className={styles["header"]}>
@@ -50,14 +38,19 @@ function Navbar() {
         </Link>
       </div>
       <nav className="categories-navigation">
-        {categories.map((category, index) => (
+        {loading && <p>Chargement...</p>}
+        {data?.categories.map((category: CategoriesType, index: number) => (
           <nav key={index}>
-            <Link to={`/category/${category.id}`} className="category-navigation-link">
+            <Link
+              to={`/category/${category.id}`}
+              className="category-navigation-link"
+            >
               {category.name}
             </Link>
-            {index < categories.length - 1 && " • "}
+            {index < data.categories.length - 1 && " • "}
           </nav>
         ))}
+        {error && <p>Erreur dans le chargement : {error.message}</p>}
       </nav>
     </header>
   );

@@ -1,0 +1,45 @@
+import { gql } from "@apollo/client";
+
+export const GET_ADS = gql`
+  query ads {
+    ads {
+      id
+      title
+      description
+      owner
+      price
+      picture
+      location
+      createdAt
+      tags {
+        name
+      }
+      category {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_AD = gql`
+  query Query($adId: ID!) {
+    ad(id: $adId) {
+      id
+      category {
+        name
+        id
+      }
+      tags {
+        name
+        id
+      }
+      title
+      description
+      location
+      owner
+      price
+      picture
+      createdAt
+    }
+  }
+`;

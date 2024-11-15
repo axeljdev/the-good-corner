@@ -1,32 +1,22 @@
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { AdsType } from "../types";
 import Ads from "../components/Ads";
+import { useQuery } from "@apollo/client";
+import { GET_CATEGORY } from "../api/categories";
+import { AdsType } from "../types";
+import { useParams } from "react-router-dom";
 
 function Category({ onClick }: { onClick: () => void }) {
-  const [ads, setAds] = useState<AdsType[]>([]);
   const { category } = useParams();
+  const { data } = useQuery(GET_CATEGORY, {
+    variables: { categoryId: category },
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await axios.get<AdsType[]>(
-          `http://localhost:3000/ads?categoryId=${category}`
-        );
-        setAds(result.data);
-      } catch (err) {
-        console.log("error", err);
-      }
-    };
-    fetchData();
-  }, [category]);
+  const ads = data?.category.ads || [];
 
   return (
     <main className="main-content">
-      <h1> Les offres en </h1>
+      <h1> Les offres en {data?.category.name} </h1>
       <section className="recent-ads">
-        {ads.map((ad) => (
+        {ads.map((ad: AdsType) => (
           <>
             <Ads
               id={ad.id}

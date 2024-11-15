@@ -1,65 +1,79 @@
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { Tag } from "../entities/tag";
+import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Tag, TagCreateInput, TagUpdateInput } from "../entities/Tag";
+import { validate } from "class-validator";
 
 @Resolver()
 export class TagsResolver {
   @Query(() => [Tag])
   async tags(): Promise<Tag[]> {
-    return await Tag.find({
+    const tags = await Tag.find({
       relations: {
         ads: true,
       },
     });
+    return tags;
   }
 
   @Query(() => Tag, { nullable: true })
-  async tag(@Arg("id") id: number): Promise<Tag | null> {
-    return await Tag.findOne({
-      where: { id },
-      relations: {
-        ads: true,
-      },
-    });
-  }
-
-  @Mutation(() => Tag)
-  async createTag(@Arg("name") name: string): Promise<Tag> {
-    const newTag = new Tag();
-    newTag.name = name;
-    await newTag.save();
-    return newTag;
-  }
-
-  @Mutation(() => Tag, { nullable: true })
-  async deleteTag(@Arg("id") id: number): Promise<Tag | null> {
+  async tag(@Arg("id", () => ID) id: number): Promise<Tag | null> {
     const tag = await Tag.findOne({
       where: { id },
       relations: {
-        ads: true,
+        ads: {
+          tags: true,
+          category: true,
+        },
       },
     });
-    if (tag !== null) {
-      await tag.remove();
+    if (tag) {
       return tag;
     } else {
       return null;
     }
   }
 
+  @Mutation(() => Tag)
+  async createTag(
+    @Arg("data", () => TagCreateInput) data: TagCreateInput
+  ): Promise<Tag> {
+    const newTag = new Tag();
+    Object.assign(newTag, data);
+
+    const errors = await validate(newTag);
+    if (errors.length > 0) {
+      throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+    } else {
+      await newTag.save();
+      return newTag;
+    }
+  }
+
   @Mutation(() => Tag, { nullable: true })
   async updateTag(
-    @Arg("id") id: number,
-    @Arg("name") name: string
+    @Arg("id", () => ID) id: number,
+    @Arg("data", () => TagUpdateInput) data: TagUpdateInput
   ): Promise<Tag | null> {
-    const tag = await Tag.findOne({
-      where: { id },
-      relations: {
-        ads: true,
-      },
-    });
+    const tag = await Tag.findOneBy({ id });
     if (tag !== null) {
-      tag.name = name;
-      await tag.save();
+      Object.assign(tag, data);
+
+      const errors = await validate(tag);
+      if (errors.length > 0) {
+        throw new Error(`Validation error: ${JSON.stringify(errors)}`);
+      } else {
+        await tag.save();
+        return tag;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  @Mutation(() => Tag, { nullable: true })
+  async deleteTag(@Arg("id", () => ID) id: number): Promise<Tag | null> {
+    const tag = await Tag.findOneBy({ id });
+    if (tag !== null) {
+      await tag.remove();
       return tag;
     } else {
       return null;
