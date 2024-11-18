@@ -1,32 +1,53 @@
 import { useState } from "react";
-import axios from "axios";
+import { useMutation } from "@apollo/client";
 import Button from "./Button";
+import { CREATE_CATEGORY } from "../api/createCategory";
+import { GET_CATEGORIES } from "../api/categories";
+import { CategoriesType } from "../types";
 
-function CategoryEditor({ onCategoryAdded }: { onCategoryAdded: (category: { id: number, name: string }) => void }) {
-    const [newCategory, setNewCategory] = useState("");
+export function CategoryEditor(props: {
+  onCategoryCreated: (newId: number) => void;
+}) {
+  const [name, setName] = useState("");
 
-    const addCategory = async () => {
-        if (newCategory.trim() !== "") {
-            try {
-                const response = await axios.post("http://localhost:3000/categories", {
-                    name: newCategory
-                });
-                onCategoryAdded(response.data);
-                setNewCategory("");
-            } catch (error) {
-                console.error("Erreur lors de l'ajout de la catégorie :", error);
-            }
-        }
-    };
-
-    return (
-        <section>
-            <label> Nom de la catégorie :
-                <input type="text" className="text-field adEditor" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
-            </label>
-            <Button onClick={addCategory} name="Ajouter"/>
-        </section>
-    );
+  const [doCreateCategory] = useMutation<{ createCategory: CategoriesType }>(
+    CREATE_CATEGORY,
+    {
+      refetchQueries: [GET_CATEGORIES],
+    }
+  );
+  async function doSubmit() {
+    try {
+      const { data } = await doCreateCategory({
+        variables: {
+          data: {
+            name,
+          },
+        },
+      });
+      setName("");
+      if (data) {
+        props.onCategoryCreated(data.createCategory.id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  return (
+    <section>
+      <label>
+        {" "}
+        Nom de la catégorie :
+        <input
+          className="text-field adEditor"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </label>
+      <Button onClick={doSubmit} name="Ajouter" />
+    </section>
+  );
 }
 
 export default CategoryEditor;

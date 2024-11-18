@@ -1,21 +1,20 @@
 import { gql } from "@apollo/client";
 
-export const GET_ADS = gql`
-  query ads {
-    ads {
+export const UPDATE_AD = gql`
+  mutation updateAd($id: ID!, $data: AdUpdateInput!) {
+    updateAd(id: $id, data: $data) {
       id
       title
       description
-      owner
       price
-      picture
       location
-      createdAt
-      tags {
+      picture
+      owner
+      category {
         id
         name
       }
-      category {
+      tags {
         id
         name
       }

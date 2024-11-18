@@ -26,9 +26,9 @@ export class Category extends BaseEntity {
   @Field(() => ID)
   id!: number;
 
-  @Column()
-  @Length(10, 100, { message: "Name must be between 10 and 100 chars" })
-  @Field()
+  @Column({ nullable: true })
+  @Length(3, 100, { message: "Name must be between 3 and 100 chars" })
+  @Field({ nullable: true })
   name!: string;
 
   @OneToMany(() => Ad, (ad) => ad.category)

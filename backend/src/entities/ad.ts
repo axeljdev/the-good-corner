@@ -1,5 +1,6 @@
 import { IsEmail, IsUrl, Length, Max, Min } from "class-validator";
 import {
+  AfterInsert,
   BaseEntity,
   BeforeInsert,
   Column,
@@ -37,7 +38,7 @@ export class Ad extends BaseEntity {
   tags!: Tag[];
 
   @Column()
-  @Length(10, 100, { message: "Title must be between 10 and 100 chars" })
+  @Length(3, 100, { message: "Title must be between 3 and 100 chars" })
   @Field()
   title!: string;
 
@@ -72,6 +73,11 @@ export class Ad extends BaseEntity {
   @BeforeInsert()
   private setCreatedAt() {
     this.createdAt = new Date();
+  }
+
+  @AfterInsert()
+  private sendNotification() {
+    // sendNotfication()
   }
 }
 

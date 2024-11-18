@@ -1,293 +1,290 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { AdsType, CategoriesType, TagsType } from "../types";
-import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/Button";
-import CategoryEditor from "../components/CategoryEditor";
+import { CategoryEditor } from "../components/CategoryEditor";
 import TagEditor from "../components/TagEditor";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_AD } from "../api/ad";
+import { AdsType, CategoriesType, TagsType } from "../types";
+import { GET_CATEGORIES } from "../api/categories";
+import { GET_TAGS } from "../api/tags";
+import { GET_ADS } from "../api/ads";
+import { CREATE_AD } from "../api/createAd";
+import { UPDATE_AD } from "../api/updateAd";
 
-function AdEditor() {
+export default function AdEditorPage() {
+  const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   const id = params.id && Number(params.id);
 
-  const [ad, setAd] = useState<AdsType>();
+  const { data } = useQuery<{ ad: AdsType }>(GET_AD, {
+    variables: {
+      id,
+    },
+    skip: !id,
+  });
+  const ad = data?.ad;
 
-  const [title, setTitle] = useState("");
+  const [error, setError] = useState<string>();
+
+  const [title, setTitle] = useState("Super vélo 2");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState<number>();
-  const [location, setLocation] = useState("");
-  const [picture, setPicture] = useState("");
-  const [owner, setOwner] = useState("");
-  const [categoryId, setCategoryId] = useState<number | undefined>();
+  const [price, setPrice] = useState(100);
+  const [location, setLocation] = useState("Villeurbanne");
+  const [picture, setPicture] = useState("https://google.com");
+  const [owner, setOwner] = useState("aurelien@aleygues.fr");
+  const [categoryId, setCategoryId] = useState<number>();
   const [tagsIds, setTagsIds] = useState<number[]>([]);
-  const [showCategoryEditor, setShowCategoryEditor] = useState(false);
-  const [showTagEditor, setShowTagEditor] = useState(false);
-
-  const [categories, setCategories] = useState<CategoriesType[]>([]);
-
-  const [tags, setTags] = useState<TagsType[]>([]);
 
   useEffect(() => {
-    if (id) {
-      const fetchData = async () => {
-        const result = await axios.get<AdsType>(
-          `http://localhost:3000/ads/${id}`
-        );
-        setAd(result.data);
-      };
-      fetchData();
-    }
-  }, [id]);
+    if (ad) {
+      setTitle(ad.title);
+      setDescription(ad.description);
+      setPrice(ad.price);
+      setLocation(ad.location);
+      setPicture(ad.picture);
+      setOwner(ad.owner);
+      setCategoryId(ad.category?.id);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      {
-        const result = await axios.get<CategoriesType[]>(
-          "http://localhost:3000/categories"
-        );
-        setCategories(result.data);
+      const tagsIds: number[] = [];
+      for (const tag of ad.tags) {
+        tagsIds.push(tag.id);
       }
-
-      {
-        const result = await axios.get<TagsType[]>(
-          "http://localhost:3000/tags"
-        );
-        setTags(result.data);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (ad && Array.isArray(ad) && ad.length > 0) {
-      const {
-        title,
-        description,
-        price,
-        location,
-        picture,
-        owner,
-        category,
-        tags,
-      } = ad[0];
-      setTitle(title);
-      setDescription(description);
-      setPrice(price / 100);
-      setLocation(location);
-      setPicture(picture);
-      setOwner(owner);
-      setCategoryId(category.id);
-      setTagsIds(tags.map((tag: { id: number }) => tag.id));
+      setTagsIds(tagsIds);
     }
-  }, [ad]); // Assurez-vous que cet effet est bien déclenché après la mise à jour de `ad`
+  }, [ad]);
 
-  type Inputs = {
-    title: string;
-    description: string;
-    price: number;
-    location: string;
-    picture: string;
-    owner: string;
-    categoryId: number;
-    tags: number[];
-  };
+  const { data: categoriesData } = useQuery<{ categories: CategoriesType[] }>(
+    GET_CATEGORIES
+  );
+  const categories = categoriesData?.categories;
+  useEffect(() => {
+    if (categories && categories.length && !categoryId) {
+      setCategoryId(categories[0].id);
+    }
+  }, [categories]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
+  const { data: tagsData } = useQuery<{ tags: TagsType[] }>(GET_TAGS);
+  const tags = tagsData?.tags;
 
-  const navigate = useNavigate();
+  const [doCreateAd, { loading: createLoading }] = useMutation<{
+    createAd: AdsType;
+  }>(CREATE_AD, {
+    refetchQueries: [GET_ADS],
+  });
 
-  async function onSubmit() {
+  const [doUpdateAd, { loading: updateLoading }] = useMutation<{
+    updateAd: AdsType;
+  }>(UPDATE_AD, {
+    refetchQueries: [GET_ADS, GET_AD],
+  });
+
+  const loading = createLoading || updateLoading;
+
+  async function doSubmit() {
+    setError(undefined);
     try {
       if (ad) {
-        const result = await axios.put<AdsType>(
-          `http://localhost:3000/ads/${id}`,
-          {
-            title,
-            description,
-            price: price ? price * 100 : 0,
-            location,
-            picture,
-            owner,
-            category: categoryId ? { id: categoryId } : null,
-            tags: tagsIds.map((id) => ({ id })),
-          }
-        );
-        navigate(`/ad/${result.data.id}`, { replace: true });
-      } else {
-        const result = await axios.post<AdsType>("http://localhost:3000/ads", {
-          title,
-          description,
-          price: price ? price * 100 : 0,
-          location,
-          picture,
-          owner,
-          category: categoryId ? { id: categoryId } : null,
-          tags: tagsIds.map((id) => ({ id })),
+        const { data } = await doUpdateAd({
+          variables: {
+            id: ad.id,
+            data: {
+              title,
+              description,
+              price,
+              location,
+              picture,
+              owner,
+              category: categoryId ? { id: categoryId } : null,
+              tags: tagsIds.map((id) => ({ id })),
+            },
+          },
         });
-        navigate(`/ad/${result.data.id}`, { replace: true });
+        navigate(`/ads/${data?.updateAd.id}`, { replace: true });
+      } else {
+        const { data } = await doCreateAd({
+          variables: {
+            data: {
+              title,
+              description,
+              price,
+              location,
+              picture,
+              owner,
+              category: categoryId ? { id: categoryId } : null,
+              tags: tagsIds.map((id) => ({ id })),
+            },
+          },
+        });
+        navigate(`/ads/${data?.createAd.id}`, { replace: true });
       }
     } catch (err) {
       console.error(err);
+      // err.response.data[0].constraint
+      setError("Une erreur est survenue");
     }
   }
 
-//probleme de champs requis a la modification a corriger
+  const [showCategoryEditor, setShowCategoryEditor] = useState(false);
+  const [showTagEditor, setShowTagEditor] = useState(false);
+
+  if (id && !ad) {
+    return <p>Chargement</p>;
+  }
+
   return (
-    <main className="main-content">
-      <form className="adEditor" onSubmit={handleSubmit(onSubmit)}>
+    <div>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          doSubmit();
+        }}
+      >
         <label>
-          Titre:
-          <p className={`error-message ${errors.description ? "visible" : ""}`}>
-            {errors.title?.message}
-          </p>
+          Titre * :
           <input
-            {...register("title", { required: "Champs requis" })}
+            required
             type="text"
-            className="text-field adEditor"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="titre de l'annonce"
           />
         </label>
+        <br />
         <label>
-          Description:
-          <p className={`error-message ${errors.description ? "visible" : ""}`}>
-            {errors.description?.message}
-          </p>
+          Prix :
           <input
-            {...register("description", { required: "Champs requis" })}
-            type="text"
-            className="text-field adEditor"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="description de l'annonce"
-          />
-        </label>
-        <label>
-          Prix:
-          <p className={`error-message ${errors.price ? "visible" : ""}`}>
-            {errors.price?.message}
-          </p>
-          <input
-            {...register("price", { required: "Champs requis" })}
             type="number"
-            className="text-field adEditor"
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
-            placeholder="prix de l'annonce"
           />
         </label>
+        <br />
         <label>
-          Localisation:
-          <p className={`error-message ${errors.location ? "visible" : ""}`}>
-            {errors.location?.message}
-          </p>
+          Description :
           <input
-            {...register("location", { required: "Champs requis" })}
             type="text"
-            className="text-field adEditor"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </label>
+        <br />
+        <label>
+          Localisation :
+          <input
+            type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="localisation de l'annonce"
           />
         </label>
+        <br />
         <label>
-          Photo(URL):
-          <p className={`error-message ${errors.picture ? "visible" : ""}`}>
-            {errors.picture?.message}
-          </p>
+          Image (URL) :
           <input
-            {...register("picture", { required: "Champs requis" })}
             type="text"
-            className="text-field adEditor"
             value={picture}
             onChange={(e) => setPicture(e.target.value)}
-            placeholder="photo de l'annonce"
           />
         </label>
+        <br />
         <label>
-          Owner(mail):
-          <p className={`error-message ${errors.owner ? "visible" : ""}`}>
-            {errors.owner?.message}
-          </p>
+          Auteur :
           <input
-            {...register("owner", { required: "Champs requis" })}
             type="text"
-            className="text-field adEditor"
             value={owner}
             onChange={(e) => setOwner(e.target.value)}
-            placeholder="propriétaire de l'annonce"
           />
         </label>
+        <br />
         <label>
-          Categorie:
-          <p className={`error-message ${errors.categoryId ? "visible" : ""}`}>
-            {errors.categoryId?.message}
-          </p>
+          Catégorie :
           <select
-            {...register("categoryId", { required: "Champs requis" })}
-            className="text-field adEditor"
-            value={categoryId} // Utilisez value ici
+            value={categoryId}
             onChange={(e) => setCategoryId(Number(e.target.value))}
           >
-            <option value="Choisissez une catégorie" disabled>
-              Choisissez une catégorie
-            </option>
-            {categories.map((category) => (
+            {categories?.map((category) => (
               <option value={category.id} key={category.id}>
                 {category.name}
               </option>
             ))}
           </select>
-          <Button
-            name={showCategoryEditor ? "Fermer" : "Ajouter une catégorie"}
-            onClick={() => setShowCategoryEditor(!showCategoryEditor)}
-          />
         </label>
+        <button
+          type="button"
+          onClick={() => {
+            setShowCategoryEditor(!showCategoryEditor);
+          }}
+        >
+          {showCategoryEditor === true ? "Cacher" : "Nouvelle catégorie"}
+        </button>
         {showCategoryEditor && (
           <CategoryEditor
-            onCategoryAdded={(newCategory) =>
-              setCategories([...categories, newCategory])
-            }
-          />
-        )}
-        {tags.map((tag) => (
-          <label key={tag.id}>
-            <input
-              type="checkbox"
-              checked={tagsIds.includes(tag.id)}
-              onChange={() => {
-                if (tagsIds.includes(tag.id)) {
-                  setTagsIds(tagsIds.filter((id) => id !== tag.id));
-                } else {
-                  setTagsIds([...tagsIds, tag.id]);
-                }
-              }}
-            />
-            {tag.name}
-          </label>
-        ))}
-        <Button
-          name={showTagEditor ? "Fermer" : "Ajouter un tag"}
-          onClick={() => setShowTagEditor(!showTagEditor)}
-        />
-        {showTagEditor && (
-          <TagEditor
-            onTagAdded={(newTag) => {
-              setTags([...tags, newTag]);
-              setTagsIds([...tagsIds, newTag.id]);
+            onCategoryCreated={async (id) => {
+              setShowCategoryEditor(false);
+              /* await fetchCategories(); */
+              setCategoryId(id);
             }}
           />
         )}
-        <button type="submit" className="button">{ad ? "Modifier" : "Créer"}</button>
+        <br />
+        <div>
+          Tags :
+          {tags?.map((tag) => (
+            <label key={tag.id}>
+              <input
+                type="checkbox"
+                checked={tagsIds.includes(tag.id) === true}
+                onClick={() => {
+                  if (tagsIds.includes(tag.id) === true) {
+                    const newArray = [];
+                    for (const entry of tagsIds) {
+                      if (entry !== tag.id) {
+                        newArray.push(entry);
+                      }
+                    }
+                    // const newArray = tagsIds.filter(t => tag.id !== t.id)
+
+                    setTagsIds(newArray);
+                  } else {
+                    tagsIds.push(tag.id);
+
+                    const newArray = [];
+                    for (const entry of tagsIds) {
+                      newArray.push(entry);
+                    }
+                    // const newArray = tagsIds.slice()
+
+                    setTagsIds(newArray);
+                  }
+                }}
+              />
+              {tag.name}
+            </label>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setShowTagEditor(!showTagEditor);
+          }}
+        >
+          {showTagEditor === true ? "Cacher" : "Nouveau tag"}
+        </button>
+        {showTagEditor && (
+          <TagEditor
+            onTagAdded={async (tag) => {
+              setShowTagEditor(false);
+              /* await fetchTags(); */
+              /* await refetch(); */
+              tagsIds.push(tag.id);
+              setTagsIds([...tagsIds]);
+            }}
+          />
+        )}
+        <br />
+        <br />
+        <button>{ad ? "Modifier mon annonce" : "Créer mon annonce"}</button>
+        {loading === true && <p>Envoi...</p>}
       </form>
-    </main>
+    </div>
   );
 }
-
-export default AdEditor;

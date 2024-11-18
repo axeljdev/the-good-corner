@@ -6,7 +6,9 @@ import { AdsType } from "../types";
 
 function RecentAds() {
   const [totalprice, setTotalPrice] = useState(0);
-  const { data, loading, error } = useQuery(GET_ADS);
+  const { data, loading, error } = useQuery(GET_ADS, {
+    fetchPolicy: "cache-and-network",
+  });
 
   return (
     <main className="main-content">
@@ -27,6 +29,7 @@ function RecentAds() {
               categoryId={ad.categoryId}
               price={ad.price}
               picture={ad.picture}
+              category={ad.category}
               tags={ad.tags}
               key={ad.id}
               onClick={() => setTotalPrice(totalprice + ad.price)}

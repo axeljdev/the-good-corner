@@ -1,23 +1,25 @@
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdsType } from "../types";
 import Button from "../components/Button";
-import { useQuery } from "@apollo/client";
-import { GET_AD } from "../api/ads";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_AD } from "../api/ad";
+import { DELETE_AD } from "../api/deleteAd";
 
 function AdDetails() {
   const { id } = useParams();
 
-  const { data, loading, error } = useQuery(GET_AD, {
+  const { data, loading, error } = useQuery<{ ad: AdsType }>(GET_AD, {
     variables: { adId: id },
   });
-  const ad: AdsType = data?.ad;
+  const ad = data?.ad;
 
   const navigate = useNavigate();
 
+  const [deleteAd] = useMutation(DELETE_AD);
+
   const handledelete = async () => {
     try {
-      await axios.delete<AdsType>(`http://localhost:3000/ads/${id}`);
+      await deleteAd({ variables: { id } });
       navigate("/", { replace: true });
     } catch (err) {
       console.log("error", err);

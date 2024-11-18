@@ -1,6 +1,6 @@
 import Ads from "../components/Ads";
 import { useQuery } from "@apollo/client";
-import { GET_CATEGORY } from "../api/categories";
+import { GET_CATEGORY } from "../api/category";
 import { AdsType } from "../types";
 import { useParams } from "react-router-dom";
 
