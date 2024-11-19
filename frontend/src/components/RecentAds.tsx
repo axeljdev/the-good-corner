@@ -2,7 +2,6 @@ import { useState } from "react";
 import Ads from "./Ads";
 import { useQuery } from "@apollo/client";
 import { GET_ADS } from "../api/ads";
-import { AdsType } from "../types";
 
 function RecentAds() {
   const [totalprice, setTotalPrice] = useState(0);
@@ -18,7 +17,7 @@ function RecentAds() {
       <p>Total : {totalprice / 100} €</p>
       <section className="recent-ads">
         {loading && <p>Chargement...</p>}
-        {ads?.map((ad: AdsType) => (
+        {ads?.map((ad) => (
           <>
             <Ads
               key={ad.id}

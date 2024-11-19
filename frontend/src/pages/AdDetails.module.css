@@ -1,0 +1,14 @@
+.ad-details-header {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.ad-details-content {
+  padding: 1rem;
+}
+
+.ad-details-image {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}

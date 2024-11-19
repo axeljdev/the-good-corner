@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import { useMutation, useQuery } from "@apollo/client";
 import { GET_AD } from "../api/ad";
 import { DELETE_AD } from "../api/deleteAd";
+import styles from "./AdDetails.module.css";
 
 function AdDetails() {
   const { id } = useParams();
@@ -33,14 +34,25 @@ function AdDetails() {
       {error && <p>Erreur dans le chargement : {error.message}</p>}
       {ad ? (
         <>
-          <Button name="Supprimer" onClick={handledelete} />
-          <h1>{ad.title}</h1>
-          <p>{ad.owner}</p>
-          <img src={ad.picture} alt={ad.title} />
-          <p>Description : {ad.description}</p>
-          <p>Prix : {ad.price / 100} €</p>
-          <p>Lieux : {ad.location}</p>
-          <Button name="Modifier" onClick={() => navigate(`/ad/${id}/edit`)} />
+          <div className={styles["ad-details-header"]}>
+            <Button
+              name="Modifier"
+              onClick={() => navigate(`/ad/${id}/edit`)}
+            />
+            <Button name="Supprimer" onClick={handledelete} />
+          </div>
+          <div className={styles["ad-details-content"]}>
+            <h1>{ad.title}</h1>
+            <p>{ad.owner}</p>
+            <img
+              src={ad.picture}
+              className={styles["ad-details-image"]}
+              alt={ad.title}
+            />
+            <p>Description : {ad.description}</p>
+            <p>Prix : {ad.price / 100} €</p>
+            <p>Lieux : {ad.location}</p>
+          </div>
         </>
       ) : (
         <p>Chargement...</p>

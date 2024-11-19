@@ -19,7 +19,7 @@ export function Ad(
           </p>
           <div className={styles["ad-card-tags"]}>
             {props.tags?.map((tag) => (
-              <span>{tag.name}</span>
+              <span className={styles["ad-card-tag"]}>{tag.name}</span>
             ))}
           </div>
         </div>
