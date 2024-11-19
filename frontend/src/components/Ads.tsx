@@ -1,25 +1,31 @@
 import { Link } from "react-router-dom";
 import styles from "./Ads.module.css";
-import Button from "./Button";
-import { AdsType } from "../types";
+import { Ad as AdType } from "../gql/graphql";
 
-function Ads({ id, title, price, picture, onClick }: AdsType & { onClick: () => void }) {
-  
+export function Ad(
+  props: Partial<AdType> & {
+    onAddToCart?: () => void;
+    important?: boolean;
+  }
+) {
   return (
     <div className={styles["ad-card-container"]}>
-      <Link to={`/ad/${id}`} className={styles["ad-card-link"]}>
-        <img className={styles["ad-card-image"]} src={picture} />
+      <Link to={`/ad/${props.id}`} className={styles["ad-card-link"]}>
+        <img className={styles["ad-card-image"]} src={props.picture} />
         <div className={styles["ad-card-text"]}>
-          <div className={styles["ad-card-title"]}>{title}</div>
-          <div className={styles["ad-card-price"]}>{price/100}€</div>
+          <p className={styles["ad-card-title"]}>{props.title}</p>
+          <p className={styles["ad-card-price"]}>
+            {((props.price ?? 0) / 100).toFixed(2)} €
+          </p>
+          <div className={styles["ad-card-tags"]}>
+            {props.tags?.map((tag) => (
+              <span>{tag.name}</span>
+            ))}
+          </div>
         </div>
       </Link>
-      <Button 
-        name="Ajouter au panier"
-        onClick={onClick}
-      />
     </div>
   );
 }
 
-export default Ads;
+export default Ad;

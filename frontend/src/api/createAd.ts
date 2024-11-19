@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from "../gql";
 
-export const CREATE_AD = gql`
+export const CREATE_AD = gql(`
   mutation Mutation($data: AdCreateInput!) {
     createAd(data: $data) {
       createdAt
@@ -21,4 +21,4 @@ export const CREATE_AD = gql`
       }
     }
   }
-`;
+`);

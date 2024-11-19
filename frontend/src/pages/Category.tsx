@@ -1,8 +1,8 @@
 import Ads from "../components/Ads";
 import { useQuery } from "@apollo/client";
 import { GET_CATEGORY } from "../api/category";
-import { AdsType } from "../types";
 import { useParams } from "react-router-dom";
+import { AdsType } from "../types";
 
 function Category({ onClick }: { onClick: () => void }) {
   const { category } = useParams();
@@ -19,17 +19,23 @@ function Category({ onClick }: { onClick: () => void }) {
         {ads.map((ad: AdsType) => (
           <>
             <Ads
-              id={ad.id}
+              id={ad.id.toString()}
               title={ad.title}
               description={ad.description}
               owner={ad.owner}
               location={ad.location}
-              categoryId={ad.categoryId}
+              category={{
+                id: ad.category.id.toString(),
+                name: ad.category.name,
+                ads: [],
+                likes: [],
+              }}
               price={ad.price}
               picture={ad.picture}
-              tags={ad.tags}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              tags={ad.tags as any}
               key={ad.id}
-              onClick={onClick}
+              onAddToCart={onClick}
             />
           </>
         ))}

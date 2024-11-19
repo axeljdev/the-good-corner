@@ -6,9 +6,10 @@ import { AdsType } from "../types";
 
 function RecentAds() {
   const [totalprice, setTotalPrice] = useState(0);
-  const { data, loading, error } = useQuery(GET_ADS, {
+  const { data, loading } = useQuery(GET_ADS, {
     fetchPolicy: "cache-and-network",
   });
+  const ads = data?.ads;
 
   return (
     <main className="main-content">
@@ -17,22 +18,20 @@ function RecentAds() {
       <p>Total : {totalprice / 100} €</p>
       <section className="recent-ads">
         {loading && <p>Chargement...</p>}
-        {error && <p>Erreur dans le chargement : {error.message}</p>}
-        {data?.ads.map((ad: AdsType) => (
+        {ads?.map((ad: AdsType) => (
           <>
             <Ads
-              id={ad.id}
+              key={ad.id}
+              id={ad.id.toString()}
+              picture={ad.picture}
               title={ad.title}
+              price={ad.price}
               description={ad.description}
               owner={ad.owner}
               location={ad.location}
-              categoryId={ad.categoryId}
-              price={ad.price}
-              picture={ad.picture}
-              category={ad.category}
-              tags={ad.tags}
-              key={ad.id}
-              onClick={() => setTotalPrice(totalprice + ad.price)}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              tags={ad.tags as any}
+              onAddToCart={() => setTotalPrice(totalprice + ad.price)}
             />
           </>
         ))}

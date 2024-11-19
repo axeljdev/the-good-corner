@@ -18,6 +18,7 @@ function AdDetails() {
   const [deleteAd] = useMutation(DELETE_AD);
 
   const handledelete = async () => {
+    if (!id) return;
     try {
       await deleteAd({ variables: { id } });
       navigate("/", { replace: true });
